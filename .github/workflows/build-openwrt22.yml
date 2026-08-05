@@ -1,4 +1,4 @@
-name: OpenWrt 22.03 SDK
+name: OpenWrt 22.03 SDK v3.0
 
 on:
   workflow_dispatch:
@@ -112,3 +112,12 @@ jobs:
           echo
           echo "Total bin size:"
           du -sh bin
+
+      - name: Upload helloworld feed
+        uses: actions/upload-artifact@v4
+        with:
+          name: helloworld-feed
+          path: |
+            ${{ env.SDK_DIR }}/bin/packages/mipsel_24kc/helloworld/
+          if-no-files-found: error
+          retention-days: 30
