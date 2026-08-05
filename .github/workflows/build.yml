@@ -1,0 +1,26 @@
+name: Test GL SDK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v4
+
+      - name: Clone GL SDK
+        run: |
+          git clone https://github.com/gl-inet/sdk.git
+
+      - name: Download MT1300 SDK
+        run: |
+          cd sdk
+          chmod +x download.sh
+          ./download.sh ramips-1907
+
+      - name: Show SDK structure
+        run: |
+          find sdk -maxdepth 4
