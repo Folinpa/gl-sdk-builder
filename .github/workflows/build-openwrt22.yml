@@ -22,7 +22,7 @@ jobs:
             gawk \
             gettext \
             git \
-            libncurses5-dev \
+            libncurses-dev \
             libssl-dev \
             python3 \
             rsync \
@@ -34,20 +34,20 @@ jobs:
 
       - name: Download OpenWrt 22.03 SDK
         run: |
-          mkdir sdk
+          mkdir -p sdk
           cd sdk
 
-          wget https://downloads.openwrt.org/releases/22.03.4/targets/ramips/mt7621/openwrt-sdk-22.03.4-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64.tar.xz
+          wget -q https://downloads.openwrt.org/releases/22.03.4/targets/ramips/mt7621/openwrt-sdk-22.03.4-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64.tar.xz
 
-          tar -xf openwrt-sdk-22.03.4-ramips-mt7621*.tar.xz
+          tar -xf openwrt-sdk-22.03.4-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64.tar.xz
+
+          ls -la
 
       - name: Locate SDK
-        id: sdk
         run: |
           SDK_DIR=$(find sdk -maxdepth 1 -type d -name "openwrt-sdk-*")
           echo "SDK_DIR=$SDK_DIR" >> $GITHUB_ENV
-          echo "SDK Directory:"
-          echo "$SDK_DIR"
+          echo "SDK Directory: $SDK_DIR"
 
       - name: Add helloworld feed
         working-directory: ${{ env.SDK_DIR }}
@@ -55,21 +55,29 @@ jobs:
           echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
 
           echo
-          echo "===== feeds.conf.default ====="
+          echo "===== Last lines of feeds.conf.default ====="
           tail -n 5 feeds.conf.default
 
-      - name: Update helloworld feed
+      - name: Update and install helloworld
         working-directory: ${{ env.SDK_DIR }}
         run: |
           ./scripts/feeds update helloworld
+          ./scripts/feeds install -p helloworld -f luci-app-ssr-plus
 
-      - name: Install luci-app-ssr-plus only
+      - name: Verify package
         working-directory: ${{ env.SDK_DIR }}
         run: |
-          ./scripts/feeds install luci-app-ssr-plus
-
-      - name: Show installed package
-        working-directory: ${{ env.SDK_DIR }}
-        run: |
+          echo "===== package ====="
           find package -name "luci-app-ssr-plus" || true
+
+          echo
+          echo "===== feeds ====="
           find feeds -name "luci-app-ssr-plus" || true
+
+          echo
+          echo "===== package/feeds ====="
+          find package/feeds -name "luci-app-ssr-plus" || true
+
+          echo
+          echo "===== grep ====="
+          grep -R "luci-app-ssr-plus" feeds.conf.default feeds package 2>/dev/null | head -30
