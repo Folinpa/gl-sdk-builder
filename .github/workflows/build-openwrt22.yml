@@ -80,4 +80,35 @@ jobs:
       - name: Compile luci-app-ssr-plus
         working-directory: ${{ env.SDK_DIR }}
         run: |
-          make package/feeds/helloworld/luci-app-ssr-plus/compile V=s
+          time make package/feeds/helloworld/luci-app-ssr-plus/compile V=s
+
+      - name: List build outputs
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
+          echo "===== BIN ====="
+          find bin -type f | sort
+
+          echo
+          echo "===== IPK ====="
+          find . -name "*.ipk" | sort
+
+          echo
+          echo "===== BUILDINFO ====="
+          find . -name "*.buildinfo" | sort
+
+          echo
+          echo "===== MANIFEST ====="
+          find . -name "*.manifest" | sort
+
+          echo
+          echo "===== PACKAGES ====="
+          find . -name "Packages*" | sort
+
+          echo
+          echo "===== SUMMARY ====="
+          echo "IPK count:"
+          find . -name "*.ipk" | wc -l
+
+          echo
+          echo "Total bin size:"
+          du -sh bin
