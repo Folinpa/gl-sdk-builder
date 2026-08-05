@@ -30,6 +30,20 @@ jobs:
           chmod +x download.sh
           ./download.sh ramips-1907
 
+      - name: Add helloworld feed
+        working-directory: sdk/sdk/1907/ramips
+        run: |
+          echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
+
+          echo
+          echo "===== Last 5 lines of feeds.conf.default ====="
+          tail -n 5 feeds.conf.default
+
+      - name: Update helloworld feed
+        working-directory: sdk/sdk/1907/ramips
+        run: |
+          ./scripts/feeds update helloworld
+
       - name: Show SDK structure
         run: |
           echo "===== SDK Directories ====="
