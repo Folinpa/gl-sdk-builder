@@ -11,29 +11,47 @@ jobs:
       - name: Checkout current repository
         uses: actions/checkout@v4
 
+      - name: Show environment
+        run: |
+          echo "===== Current Directory ====="
+          pwd
+
+          echo
+          echo "===== Repository Files ====="
+          ls -la
+
       - name: Clone GL SDK
         run: |
           git clone https://github.com/gl-inet/sdk.git
 
       - name: Download MT1300 SDK
+        working-directory: sdk
         run: |
-          cd sdk
           chmod +x download.sh
           ./download.sh ramips-1907
 
       - name: Show SDK structure
         run: |
-          find sdk -maxdepth 4
+          echo "===== SDK Directories ====="
+          find sdk -maxdepth 4 -type d
 
-      - name: Show SDK info
+          echo
+          echo "===== SDK Files ====="
+          find sdk -maxdepth 2 -type f
+
+      - name: Show SDK information
         run: |
-          echo "===== SDK Directory ====="
-          find sdk -maxdepth 3 -type d
-
-          echo
           echo "===== feeds.conf.default ====="
-          find sdk -name feeds.conf.default -exec cat {} \;
+          find sdk -name feeds.conf.default -exec sh -c 'echo; echo "--- {} ---"; cat "{}"' \;
 
           echo
-          echo "===== OpenWrt Version ====="
-          find sdk -name version.mk -exec cat {} \;
+          echo "===== version.mk ====="
+          find sdk -name version.mk
+
+          echo
+          echo "===== scripts/feeds ====="
+          find sdk -path "*/scripts/feeds"
+
+          echo
+          echo "===== package directory ====="
+          find sdk -path "*/package" -type d
