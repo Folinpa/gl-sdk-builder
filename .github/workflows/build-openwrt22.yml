@@ -41,8 +41,6 @@ jobs:
 
           tar -xf openwrt-sdk-22.03.4-ramips-mt7621_gcc-11.2.0_musl.Linux-x86_64.tar.xz
 
-          ls -la
-
       - name: Locate SDK
         run: |
           SDK_DIR=$(find sdk -maxdepth 1 -type d -name "openwrt-sdk-*")
@@ -78,6 +76,12 @@ jobs:
           echo "===== package/feeds ====="
           find package/feeds -name "luci-app-ssr-plus" || true
 
-          echo
-          echo "===== grep ====="
-          grep -R "luci-app-ssr-plus" feeds.conf.default feeds package 2>/dev/null | head -30
+      - name: Generate default config
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
+          make defconfig
+
+      - name: Compile luci-app-ssr-plus
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
+          make package/feeds/helloworld/luci-app-ssr-plus/compile V=s
