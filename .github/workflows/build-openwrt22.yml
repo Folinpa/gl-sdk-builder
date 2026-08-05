@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout current repository
         uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Install build dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -28,6 +28,7 @@ jobs:
             libncurses5-dev \
             libssl-dev \
             python3 \
+            python3-distutils \
             rsync \
             unzip \
             zlib1g-dev \
@@ -35,7 +36,7 @@ jobs:
             wget \
             curl
 
-      - name: Download OpenWrt SDK
+      - name: Download OpenWrt 22.03 SDK
         run: |
           mkdir sdk
           cd sdk
@@ -44,8 +45,35 @@ jobs:
 
           tar -xf openwrt-sdk-22.03.4-ramips-mt7621*.tar.xz
 
-          ls -la
-
-      - name: Show SDK
+      - name: Locate SDK
+        id: sdk
         run: |
-          find sdk -maxdepth 2
+          SDK_DIR=$(find sdk -maxdepth 1 -type d -name "openwrt-sdk-*")
+          echo "SDK_DIR=$SDK_DIR" >> $GITHUB_ENV
+          echo "SDK Directory:"
+          echo "$SDK_DIR"
+
+      - name: Add helloworld feed
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
+          echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
+
+          echo
+          echo "===== feeds.conf.default ====="
+          tail -n 5 feeds.conf.default
+
+      - name: Update helloworld feed
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
+          ./scripts/feeds update helloworld
+
+      - name: Install luci-app-ssr-plus only
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
+          ./scripts/feeds install luci-app-ssr-plus
+
+      - name: Show installed package
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
+          find package -name "luci-app-ssr-plus" || true
+          find feeds -name "luci-app-ssr-plus" || true
