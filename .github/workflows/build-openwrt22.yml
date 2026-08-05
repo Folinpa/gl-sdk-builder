@@ -52,29 +52,25 @@ jobs:
         run: |
           echo "src-git helloworld https://github.com/fw876/helloworld.git" >> feeds.conf.default
 
-          echo
-          echo "===== Last lines of feeds.conf.default ====="
-          tail -n 5 feeds.conf.default
-
-      - name: Update and install helloworld
+      - name: Update all feeds
         working-directory: ${{ env.SDK_DIR }}
         run: |
-          ./scripts/feeds update helloworld
-          ./scripts/feeds install -p helloworld -f luci-app-ssr-plus
+          ./scripts/feeds update -a
 
-      - name: Verify package
+      - name: Install all feeds
         working-directory: ${{ env.SDK_DIR }}
         run: |
-          echo "===== package ====="
-          find package -name "luci-app-ssr-plus" || true
+          ./scripts/feeds install -a -f
 
-          echo
+      - name: Verify LuCI
+        working-directory: ${{ env.SDK_DIR }}
+        run: |
           echo "===== feeds ====="
-          find feeds -name "luci-app-ssr-plus" || true
+          ls feeds
 
           echo
-          echo "===== package/feeds ====="
-          find package/feeds -name "luci-app-ssr-plus" || true
+          echo "===== luci.mk ====="
+          find feeds/luci -name luci.mk
 
       - name: Generate default config
         working-directory: ${{ env.SDK_DIR }}
