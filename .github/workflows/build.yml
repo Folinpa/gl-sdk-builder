@@ -24,3 +24,16 @@ jobs:
       - name: Show SDK structure
         run: |
           find sdk -maxdepth 4
+
+      - name: Show SDK info
+        run: |
+          echo "===== SDK Directory ====="
+          find sdk -maxdepth 3 -type d
+
+          echo
+          echo "===== feeds.conf.default ====="
+          find sdk -name feeds.conf.default -exec cat {} \;
+
+          echo
+          echo "===== OpenWrt Version ====="
+          find sdk -name version.mk -exec cat {} \;
